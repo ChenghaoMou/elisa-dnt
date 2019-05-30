@@ -6,7 +6,7 @@ from extract import find
 if __name__ == '__main__':
     lang = ['hau', 'tgl', 'urd', 'tur', 'swa']
     for lan in lang:
-        path = "/Users/chenghaomou/Code/Code-ProjectsPyCharm/ElisaTest/elisa-data/{0}-en/elisa.train_1.{0}".format(lan)
+        path = "/Users/chenghaomou/Code/Code-ProjectsPyCharm/ElisaTest/elisa-data/{0}-en/elisa.test.{0}".format(lan)
         count = 0
         easy = 0
 
@@ -19,6 +19,6 @@ if __name__ == '__main__':
                         easy += 1
                     count += 1
 
-        print(f"{lan} {count:<5} {easy:<5} {easy/count:<5.3f}")
+        print(f"{lan} {count:<5} {easy:<5} {easy/count if count > 0 else 0:<5.3f}")
 
 
