@@ -156,7 +156,8 @@ def split(corpus_path, corpus_output, ini_output, schema="del", ref=""):
     with open(corpus_path) as source, open(corpus_output, "w") as o_source, open(ini_output, "w") as o_source_ini:
 
         if ref == "":
-            for src in source.read().split("\n"):
+            for src in source.readlines():
+                src = src.strip('\n')
                 src_matches = find(src)
                 src_after, src_mod, src_lead = mark(src, src_matches, schema=schema)
                 if schema == "del":
@@ -180,10 +181,12 @@ def split(corpus_path, corpus_output, ini_output, schema="del", ref=""):
         else:
             assert schema != "del", "ref is not required for del schema!"
 
-            src_lines = source.read().split("\n")
-            tgt_lines = open(ref).read().split("\n")
+            src_lines = source.readlines()
+            tgt_lines = open(ref).readlines()
             
             for src_line, tgt_line in zip(src_lines, tgt_lines):
+                src_line = src_line.strip('\n')
+                tgt_line = tgt_line.strip('\n')
                 
                 src_matches = find(src_line)
                 tgt_matches = find(tgt_line)
@@ -202,12 +205,12 @@ def split(corpus_path, corpus_output, ini_output, schema="del", ref=""):
                     o_source_ini.write("IGNORE\n")
 
 
-def restore(dnt_path, ini_path, output, schema="del", ):
+def restore(dnt_path, ini_path, output, schema="del"):
 
     with open(output, "w") as o, open(dnt_path) as i_source, open(ini_path) as i_source_ini:
 
-        translations = i_source.read().split('\n')
-        instructions = i_source_ini.read().split('\n')
+        translations = list(map(lambda x: x.strip('\n'), i_source.readlines()))
+        instructions = list(map(lambda x: x.strip('\n'), i_source_ini.readlines()))
 
         if schema == "del":
             i = 0
@@ -255,7 +258,9 @@ def restore(dnt_path, ini_path, output, schema="del", ):
         else:
             for translation, instruction in zip(translations, instructions):
                 flag, *segments = instruction.split('\t')
-                if flag == "IGNORE" : o.write(translation + '\n')
+                if flag == "IGNORE":
+                    o.write(translation + '\n')
+                    continue
                 new_translation = translation
                 for char in translation:
                     if char in MARKERS:
