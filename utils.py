@@ -5,6 +5,7 @@ import regex as re
 import os
 import argparse
 import emoji
+import string
 
 rules = {
     "email": r"(?i)( *[\w!#$%&'*+/=?^`{|}~-]+(?:\.[\w!#$%&'*+/=?^`{|}~-]+)*@(?:[a-z\d](?:[a-z\d-]*[a-z\d])?\.)+[a-z\d](?:[a-z\d-]*[a-z\d])? *)",
@@ -15,7 +16,7 @@ rules = {
     "html": r"( *(<\/?(a|img|div).*?>)+ *)",
     "twitter": r"( *pic\.twitter\.com/[a-zA-Z0-9]+ *)",
     "emoticon": r"((?![\w]) *(:\)+|:-+\)+|:\(+|:-+\(+|;\)+|;-+\)+|:-+O|8-+|:P|<3|:<|:D|:\||:S|:\$|:\/|:-+\/)+ *(?![\w]))",
-    # "emoji": u"( *(\ud83d[\ude00-\ude4f])|(\ud83c[\udf00-\uffff])|(\ud83d[\u0000-\uddff])|(\ud83d[\ude80-\udeff])|(\ud83c[\udde0-\uddff])+ *)"
+    "emoji": u" *[" +  "".join(set(x for y in list(map(list, emoji.EMOJI_UNICODE.values())) for x in y if len(x) == 1 and x not in string.punctuation + '0123456789')) + "]+ *"
 }
 
 options = {
@@ -28,9 +29,9 @@ options = {
         "hashtag": "background-image:linear-gradient(90deg, #aa9cfc, #fc9ce7);",
         "comb": "background-image:linear-gradient(90deg, #a2fafc, #fce43d);",
         "emoticon": "background-image:linear-gradient(90deg, #FFFFFF, #fce43d);",
-        # "emoji": "background-image:linear-gradient(90deg, #fce43d, #FFFFFF);",
+        "emoji": "background-image:linear-gradient(90deg, #fce43d, #FFFFFF);",
     },
-    "categories": ["email", "url", "html", "mention", "time", "hashtag", "comb", "emoticon"],
+    "categories": ["email", "url", "html", "mention", "time", "hashtag", "comb", "emoticon", "emoji"],
 }
 
 RULES = {key: re.compile(value) for key, value in rules.items()}

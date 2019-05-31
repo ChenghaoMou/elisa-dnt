@@ -24,7 +24,7 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
     print(args)
-    
+    # exit(0)
     if args.visual:
         with open(args.visual[0], "w") as o:
             o.write("""
