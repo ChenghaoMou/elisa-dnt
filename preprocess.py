@@ -1,4 +1,4 @@
-from utils import find, split, visual, options, mark
+from utils import find, split, visual, options, mark, rules
 import argparse
 import re
 
@@ -17,14 +17,16 @@ if __name__ == "__main__":
                         help='target file')
     parser.add_argument('--cross', type=bool, default=False,
                         help='whether use reference taregt file for regex extraction')
-    parser.add_argument('schema', type=str,
-                        help="schema: del or sub")
+    parser.add_argument('scheme', type=str,
+                        help="scheme: del or sub")
     parser.add_argument('--visual', nargs=1,
                         help="html file path, visualize the regex on input dataset")
 
     args = parser.parse_args()
-    print(args)
-    # exit(0)
+
+    RULES = {key: re.compile(value) for key, value in rules[args.scheme].items()}
+    RULES["comb"] = re.compile("(" + "|".join(rules.values()) + ")+")
+    
     if args.visual:
         with open(args.visual[0], "w") as o:
             o.write("""
@@ -39,7 +41,7 @@ if __name__ == "__main__":
 
     path = args.src
     
-    split(args.src, args.src_output, args.ini_output, schema=args.schema, ref=args.tgt if args.schema == "sub" and args.cross else "")
+    split(args.src, args.src_output, args.ini_output, scheme=args.scheme, ref=args.tgt if args.scheme == "sub" and args.cross else "")
 
     if args.visual:
         if args.tgt == "":

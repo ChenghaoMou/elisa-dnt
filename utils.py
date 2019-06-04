@@ -8,16 +8,32 @@ import emoji
 import string
 
 rules = {
-    "email": r"(?i)( *[\w!#$%&'*+/=?^`{|}~-]+(?:\.[\w!#$%&'*+/=?^`{|}~-]+)*@(?:[a-z\d](?:[a-z\d-]*[a-z\d])?\.)+[a-z\d](?:[a-z\d-]*[a-z\d])? *)",
-    "url": r"( *\b((?:https?:(?:/{1,3}|[a-z0-9%])|[a-z0-9.\-]+[.](?:com|net|org|edu|gov|mil|aero|asia|biz|cat|coop|info|int|jobs|mobi|museum|name|post|pro|tel|travel|xxx|ac|ad|ae|af|ag|ai|al|am|an|ao|aq|ar|as|at|au|aw|ax|az|ba|bb|bd|be|bf|bg|bh|bi|bj|bm|bn|bo|br|bs|bt|bv|bw|by|bz|ca|cc|cd|cf|cg|ch|ci|ck|cl|cm|cn|co|cr|cs|cu|cv|cx|cy|cz|dd|de|dj|dk|dm|do|dz|ec|ee|eg|eh|er|es|et|eu|fi|fj|fk|fm|fo|fr|ga|gb|gd|ge|gf|gg|gh|gi|gl|gm|gn|gp|gq|gr|gs|gt|gu|gw|gy|hk|hm|hn|hr|ht|hu|id|ie|il|im|in|io|iq|ir|is|it|je|jm|jo|jp|ke|kg|kh|ki|km|kn|kp|kr|kw|ky|kz|la|lb|lc|li|lk|lr|ls|lt|lu|lv|ly|ma|mc|md|me|mg|mh|mk|ml|mm|mn|mo|mp|mq|mr|ms|mt|mu|mv|mw|mx|my|mz|na|nc|ne|nf|ng|ni|nl|no|np|nr|nu|nz|om|pa|pe|pf|pg|ph|pk|pl|pm|pn|pr|ps|pt|pw|py|qa|re|ro|rs|ru|rw|sa|sb|sc|sd|se|sg|sh|si|sj|Ja|sk|sl|sm|sn|so|sr|ss|st|su|sv|sx|sy|sz|tc|td|tf|tg|th|tj|tk|tl|tm|tn|to|tp|tr|tt|tv|tw|tz|ua|ug|uk|us|uy|uz|va|vc|ve|vg|vi|vn|vu|wf|ws|ye|yt|yu|za|zm|zw)/)(?:[^\s()<>{}\[\]]+|\([^\s()]*?\([^\s()]+\)[^\s()]*?\)|\([^\s]+?\))+(?:\([^\s()]*?\([^\s()]+\)[^\s()]*?\)|\([^\s]+?\)|[^\s`!()\[\]{};:\'\".,<>?«»“”‘’])|(?:(?<!@)[a-z0-9]+(?:[.\-][a-z0-9]+)*[.](?:com|net|org|edu|gov|mil|aero|asia|biz|cat|coop|info|int|jobs|mobi|museum|name|post|pro|tel|travel|xxx|ac|ad|ae|af|ag|ai|al|am|an|ao|aq|ar|as|at|au|aw|ax|az|ba|bb|bd|be|bf|bg|bh|bi|bj|bm|bn|bo|br|bs|bt|bv|bw|by|bz|ca|cc|cd|cf|cg|ch|ci|ck|cl|cm|cn|co|cr|cs|cu|cv|cx|cy|cz|dd|de|dj|dk|dm|do|dz|ec|ee|eg|eh|er|es|et|eu|fi|fj|fk|fm|fo|fr|ga|gb|gd|ge|gf|gg|gh|gi|gl|gm|gn|gp|gq|gr|gs|gt|gu|gw|gy|hk|hm|hn|hr|ht|hu|id|ie|il|im|in|io|iq|ir|is|it|je|jm|jo|jp|ke|kg|kh|ki|km|kn|kp|kr|kw|ky|kz|la|lb|lc|li|lk|lr|ls|lt|lu|lv|ly|ma|mc|md|me|mg|mh|mk|ml|mm|mn|mo|mp|mq|mr|ms|mt|mu|mv|mw|mx|my|mz|na|nc|ne|nf|ng|ni|nl|no|np|nr|nu|nz|om|pa|pe|pf|pg|ph|pk|pl|pm|pn|pr|ps|pt|pw|py|qa|re|ro|rs|ru|rw|sa|sb|sc|sd|se|sg|sh|si|sj|Ja|sk|sl|sm|sn|so|sr|ss|st|su|sv|sx|sy|sz|tc|td|tf|tg|th|tj|tk|tl|tm|tn|to|tp|tr|tt|tv|tw|tz|ua|ug|uk|us|uy|uz|va|vc|ve|vg|vi|vn|vu|wf|ws|ye|yt|yu|za|zm|zw)\b/?(?!@))) *)",
-    "hashtag": r"( *(#\p{N}*[\p{L}_'-]+[\p{L}\p{N}_+-]*)+ *)",
-    "mention": r"( *(@[\w\-]+)+ *)",
-    "time": r"(?i)( *@((([01]?\d|2[0-3]):([0-5]\d)|24:00) ?(pm|am|p\.m|a\.m)?) *)",
-    "html": r"( *(<\/?(a|img|div).*?>)+ *)",
-    "twitter": r"( *pic\.twitter\.com/[a-zA-Z0-9]+ *)",
-    "emoticon": r"((?![\w]) *(:\)+|:-+\)+|:\(+|:-+\(+|;\)+|;-+\)+|:-+O|8-+|:P|<3|:<|:D|:\||:S|:\$|:\/|:-+\/)+ *(?![\w]))",
-    "emoji": u" *[" +  "".join(set(x for y in list(map(list, emoji.EMOJI_UNICODE.values())) for x in y if len(x) == 1 and x not in string.punctuation + '0123456789')) + "]+ *"
+    "del": {
+        "email": r"(?i)( *[\w!#$%&'*+/=?^`{|}~-]+(?:\.[\w!#$%&'*+/=?^`{|}~-]+)*@(?:[a-z\d](?:[a-z\d-]*[a-z\d])?\.)+[a-z\d](?:[a-z\d-]*[a-z\d])? *)",
+        "url": r"( *\b((?:https?:(?:/{1,3}|[a-z0-9%])|[a-z0-9.\-]+[.](?:com|net|org|edu|gov|mil|aero|asia|biz|cat|coop|info|int|jobs|mobi|museum|name|post|pro|tel|travel|xxx|ac|ad|ae|af|ag|ai|al|am|an|ao|aq|ar|as|at|au|aw|ax|az|ba|bb|bd|be|bf|bg|bh|bi|bj|bm|bn|bo|br|bs|bt|bv|bw|by|bz|ca|cc|cd|cf|cg|ch|ci|ck|cl|cm|cn|co|cr|cs|cu|cv|cx|cy|cz|dd|de|dj|dk|dm|do|dz|ec|ee|eg|eh|er|es|et|eu|fi|fj|fk|fm|fo|fr|ga|gb|gd|ge|gf|gg|gh|gi|gl|gm|gn|gp|gq|gr|gs|gt|gu|gw|gy|hk|hm|hn|hr|ht|hu|id|ie|il|im|in|io|iq|ir|is|it|je|jm|jo|jp|ke|kg|kh|ki|km|kn|kp|kr|kw|ky|kz|la|lb|lc|li|lk|lr|ls|lt|lu|lv|ly|ma|mc|md|me|mg|mh|mk|ml|mm|mn|mo|mp|mq|mr|ms|mt|mu|mv|mw|mx|my|mz|na|nc|ne|nf|ng|ni|nl|no|np|nr|nu|nz|om|pa|pe|pf|pg|ph|pk|pl|pm|pn|pr|ps|pt|pw|py|qa|re|ro|rs|ru|rw|sa|sb|sc|sd|se|sg|sh|si|sj|Ja|sk|sl|sm|sn|so|sr|ss|st|su|sv|sx|sy|sz|tc|td|tf|tg|th|tj|tk|tl|tm|tn|to|tp|tr|tt|tv|tw|tz|ua|ug|uk|us|uy|uz|va|vc|ve|vg|vi|vn|vu|wf|ws|ye|yt|yu|za|zm|zw)/)(?:[^\s()<>{}\[\]]+|\([^\s()]*?\([^\s()]+\)[^\s()]*?\)|\([^\s]+?\))+(?:\([^\s()]*?\([^\s()]+\)[^\s()]*?\)|\([^\s]+?\)|[^\s`!()\[\]{};:\'\".,<>?«»“”‘’])|(?:(?<!@)[a-z0-9]+(?:[.\-][a-z0-9]+)*[.](?:com|net|org|edu|gov|mil|aero|asia|biz|cat|coop|info|int|jobs|mobi|museum|name|post|pro|tel|travel|xxx|ac|ad|ae|af|ag|ai|al|am|an|ao|aq|ar|as|at|au|aw|ax|az|ba|bb|bd|be|bf|bg|bh|bi|bj|bm|bn|bo|br|bs|bt|bv|bw|by|bz|ca|cc|cd|cf|cg|ch|ci|ck|cl|cm|cn|co|cr|cs|cu|cv|cx|cy|cz|dd|de|dj|dk|dm|do|dz|ec|ee|eg|eh|er|es|et|eu|fi|fj|fk|fm|fo|fr|ga|gb|gd|ge|gf|gg|gh|gi|gl|gm|gn|gp|gq|gr|gs|gt|gu|gw|gy|hk|hm|hn|hr|ht|hu|id|ie|il|im|in|io|iq|ir|is|it|je|jm|jo|jp|ke|kg|kh|ki|km|kn|kp|kr|kw|ky|kz|la|lb|lc|li|lk|lr|ls|lt|lu|lv|ly|ma|mc|md|me|mg|mh|mk|ml|mm|mn|mo|mp|mq|mr|ms|mt|mu|mv|mw|mx|my|mz|na|nc|ne|nf|ng|ni|nl|no|np|nr|nu|nz|om|pa|pe|pf|pg|ph|pk|pl|pm|pn|pr|ps|pt|pw|py|qa|re|ro|rs|ru|rw|sa|sb|sc|sd|se|sg|sh|si|sj|Ja|sk|sl|sm|sn|so|sr|ss|st|su|sv|sx|sy|sz|tc|td|tf|tg|th|tj|tk|tl|tm|tn|to|tp|tr|tt|tv|tw|tz|ua|ug|uk|us|uy|uz|va|vc|ve|vg|vi|vn|vu|wf|ws|ye|yt|yu|za|zm|zw)\b/?(?!@))) *)",
+        "hashtag": r"( *(#\p{N}*[\p{L}_'-]+[\p{L}\p{N}_+-]*)+ *)",
+        "mention": r"( *(@[\w\-]+)+ *)",
+        "time": r"(?i)( *@((([01]?\d|2[0-3]):([0-5]\d)|24:00) ?(pm|am|p\.m|a\.m)?) *)",
+        "html": r"( *(<\/?(a|img|div).*?>)+ *)",
+        "twitter": r"( *pic\.twitter\.com/[a-zA-Z0-9]+ *)",
+        "emoticon": r"((?![\w]) *(:\)+|:-+\)+|:\(+|:-+\(+|;\)+|;-+\)+|:-+O|8-+|:P|<3|:<|:D|:\||:S|:\$|:\/|:-+\/)+ *(?![\w]))",
+        "emoji": u" *[" +  "".join(set(x for y in list(map(list, emoji.EMOJI_UNICODE.values())) for x in y if len(x) == 1 and x not in string.punctuation + '0123456789')) + "]+ *"
+    },
+    "sub": {
+        "email": r"(?i)([\w!#$%&'*+/=?^`{|}~-]+(?:\.[\w!#$%&'*+/=?^`{|}~-]+)*@(?:[a-z\d](?:[a-z\d-]*[a-z\d])?\.)+[a-z\d](?:[a-z\d-]*[a-z\d])?)",
+        "url": r"(\b((?:https?:(?:/{1,3}|[a-z0-9%])|[a-z0-9.\-]+[.](?:com|net|org|edu|gov|mil|aero|asia|biz|cat|coop|info|int|jobs|mobi|museum|name|post|pro|tel|travel|xxx|ac|ad|ae|af|ag|ai|al|am|an|ao|aq|ar|as|at|au|aw|ax|az|ba|bb|bd|be|bf|bg|bh|bi|bj|bm|bn|bo|br|bs|bt|bv|bw|by|bz|ca|cc|cd|cf|cg|ch|ci|ck|cl|cm|cn|co|cr|cs|cu|cv|cx|cy|cz|dd|de|dj|dk|dm|do|dz|ec|ee|eg|eh|er|es|et|eu|fi|fj|fk|fm|fo|fr|ga|gb|gd|ge|gf|gg|gh|gi|gl|gm|gn|gp|gq|gr|gs|gt|gu|gw|gy|hk|hm|hn|hr|ht|hu|id|ie|il|im|in|io|iq|ir|is|it|je|jm|jo|jp|ke|kg|kh|ki|km|kn|kp|kr|kw|ky|kz|la|lb|lc|li|lk|lr|ls|lt|lu|lv|ly|ma|mc|md|me|mg|mh|mk|ml|mm|mn|mo|mp|mq|mr|ms|mt|mu|mv|mw|mx|my|mz|na|nc|ne|nf|ng|ni|nl|no|np|nr|nu|nz|om|pa|pe|pf|pg|ph|pk|pl|pm|pn|pr|ps|pt|pw|py|qa|re|ro|rs|ru|rw|sa|sb|sc|sd|se|sg|sh|si|sj|Ja|sk|sl|sm|sn|so|sr|ss|st|su|sv|sx|sy|sz|tc|td|tf|tg|th|tj|tk|tl|tm|tn|to|tp|tr|tt|tv|tw|tz|ua|ug|uk|us|uy|uz|va|vc|ve|vg|vi|vn|vu|wf|ws|ye|yt|yu|za|zm|zw)/)(?:[^\s()<>{}\[\]]+|\([^\s()]*?\([^\s()]+\)[^\s()]*?\)|\([^\s]+?\))+(?:\([^\s()]*?\([^\s()]+\)[^\s()]*?\)|\([^\s]+?\)|[^\s`!()\[\]{};:\'\".,<>?«»“”‘’])|(?:(?<!@)[a-z0-9]+(?:[.\-][a-z0-9]+)*[.](?:com|net|org|edu|gov|mil|aero|asia|biz|cat|coop|info|int|jobs|mobi|museum|name|post|pro|tel|travel|xxx|ac|ad|ae|af|ag|ai|al|am|an|ao|aq|ar|as|at|au|aw|ax|az|ba|bb|bd|be|bf|bg|bh|bi|bj|bm|bn|bo|br|bs|bt|bv|bw|by|bz|ca|cc|cd|cf|cg|ch|ci|ck|cl|cm|cn|co|cr|cs|cu|cv|cx|cy|cz|dd|de|dj|dk|dm|do|dz|ec|ee|eg|eh|er|es|et|eu|fi|fj|fk|fm|fo|fr|ga|gb|gd|ge|gf|gg|gh|gi|gl|gm|gn|gp|gq|gr|gs|gt|gu|gw|gy|hk|hm|hn|hr|ht|hu|id|ie|il|im|in|io|iq|ir|is|it|je|jm|jo|jp|ke|kg|kh|ki|km|kn|kp|kr|kw|ky|kz|la|lb|lc|li|lk|lr|ls|lt|lu|lv|ly|ma|mc|md|me|mg|mh|mk|ml|mm|mn|mo|mp|mq|mr|ms|mt|mu|mv|mw|mx|my|mz|na|nc|ne|nf|ng|ni|nl|no|np|nr|nu|nz|om|pa|pe|pf|pg|ph|pk|pl|pm|pn|pr|ps|pt|pw|py|qa|re|ro|rs|ru|rw|sa|sb|sc|sd|se|sg|sh|si|sj|Ja|sk|sl|sm|sn|so|sr|ss|st|su|sv|sx|sy|sz|tc|td|tf|tg|th|tj|tk|tl|tm|tn|to|tp|tr|tt|tv|tw|tz|ua|ug|uk|us|uy|uz|va|vc|ve|vg|vi|vn|vu|wf|ws|ye|yt|yu|za|zm|zw)\b/?(?!@))))",
+        "hashtag": r"((#\p{N}*[\p{L}_'-]+[\p{L}\p{N}_+-]*)+)",
+        "mention": r"((@[\w\-]+)+)",
+        "time": r"(?i)(@((([01]?\d|2[0-3]):([0-5]\d)|24:00) ?(pm|am|p\.m|a\.m)?))",
+        "html": r"((<\/?(a|img|div).*?>)+)",
+        "twitter": r"(pic\.twitter\.com/[a-zA-Z0-9]+)",
+        "emoticon": r"((?![\w])(:\)+|:-+\)+|:\(+|:-+\(+|;\)+|;-+\)+|:-+O|8-+|:P|<3|:<|:D|:\||:S|:\$|:\/|:-+\/)+(?![\w]))",
+        "emoji": u"[" +  "".join(set(x for y in list(map(list, emoji.EMOJI_UNICODE.values())) for x in y if len(x) == 1 and x not in string.punctuation + '0123456789')) + "]+"
+    }
 }
+
+RULES = None
+MARKERS = [chr(x) for x in range(0x4DC0, 0x4DFF)]
 
 options = {
     "colors": {
@@ -34,11 +50,10 @@ options = {
     "categories": ["email", "url", "html", "mention", "time", "hashtag", "comb", "emoticon", "emoji"],
 }
 
-RULES = {key: re.compile(value) for key, value in rules.items()}
-RULES["comb"] = re.compile("(" + "|".join(rules.values()) + ")+")
-MARKERS = [chr(x) for x in range(0x4DC0, 0x4DFF)]
+
 
 def find(string: str) -> list:
+    global RULES
     matches = itertools.chain(*[exp.finditer(string) for exp in RULES.values()])
     matches = [match for match in sorted(matches, key=lambda m: (m.start(0), -m.end(0)))]
     filtered_matches = []
@@ -52,8 +67,9 @@ def find(string: str) -> list:
     return filtered_matches
 
 
-def mark(string: str, matches: list, schema: str = "sub") -> tuple:
-    if schema == "sub":
+def mark(string: str, matches: list, scheme: str = "sub") -> tuple:
+    global MARKERS
+    if scheme == "sub":
 
         modification = []
 
@@ -67,7 +83,7 @@ def mark(string: str, matches: list, schema: str = "sub") -> tuple:
 
         return string, modification, None
 
-    elif schema == "del":
+    elif scheme == "del":
         lead = False
         modification = []
         segments = []
@@ -131,6 +147,7 @@ def mark(string: str, matches: list, schema: str = "sub") -> tuple:
 
 
 def visual(string: str, matches: list, options) -> None:
+    global RULES
     def colorize(match, text):
         cls = [key for key, value in RULES.items() if value == match.re][0]
         if cls in options["categories"]:
@@ -152,7 +169,7 @@ def visual(string: str, matches: list, options) -> None:
     return res
 
 
-def split(corpus_path, corpus_output, ini_output, schema="del", ref=""):
+def split(corpus_path, corpus_output, ini_output, scheme="del", ref=""):
 
     with open(corpus_path) as source, open(corpus_output, "w") as o_source, open(ini_output, "w") as o_source_ini:
 
@@ -160,15 +177,15 @@ def split(corpus_path, corpus_output, ini_output, schema="del", ref=""):
             for src in source.readlines():
                 src = src.strip('\n')
                 src_matches = find(src)
-                src_after, src_mod, src_lead = mark(src, src_matches, schema=schema)
-                if schema == "del":
+                src_after, src_mod, src_lead = mark(src, src_matches, scheme=scheme)
+                if scheme == "del":
                     for seg in src_after:
                         o_source.write(seg + "\n")
                 else:
                     o_source.write(src_after + "\n")
 
                 if src_matches:
-                    if schema == "del":
+                    if scheme == "del":
                         if src_after:
                             o_source_ini.write(("YL" if src_lead and len(src_after) >= len(src_mod) else "YS" if src_lead else \
                                 "NL" if not src_lead and len(src_after) > len(src_mod) else "NS"
@@ -180,7 +197,7 @@ def split(corpus_path, corpus_output, ini_output, schema="del", ref=""):
                 else:
                     o_source_ini.write("IGNORE\n")
         else:
-            assert schema != "del", "ref is not required for del schema!"
+            assert scheme != "del", "ref is not required for del scheme!"
 
             src_lines = source.readlines()
             tgt_lines = open(ref).readlines()
@@ -196,7 +213,7 @@ def split(corpus_path, corpus_output, ini_output, schema="del", ref=""):
                 x_matches = list(set(src_matches_text).intersection(set(tgt_matches_text)))
                 x_src_matches = [m for m in src_matches if src_line[m.start(0):m.end(0)] in x_matches]
 
-                src_after, src_mod, src_lead = mark(src_line, x_src_matches, schema=schema)
+                src_after, src_mod, src_lead = mark(src_line, x_src_matches, scheme=scheme)
                 
                 o_source.write(src_after + "\n")
                 
@@ -206,14 +223,15 @@ def split(corpus_path, corpus_output, ini_output, schema="del", ref=""):
                     o_source_ini.write("IGNORE\n")
 
 
-def restore(dnt_path, ini_path, output, schema="del"):
+def restore(dnt_path, ini_path, output, scheme="del"):
+    global MARKERS
 
     with open(output, "w") as o, open(dnt_path) as i_source, open(ini_path) as i_source_ini:
 
         translations = list(map(lambda x: x.strip('\n'), i_source.readlines()))
         instructions = list(map(lambda x: x.strip('\n'), i_source_ini.readlines()))
 
-        if schema == "del":
+        if scheme == "del":
             i = 0
             j = 0
             placeholder = []

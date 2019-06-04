@@ -12,11 +12,11 @@ if __name__ == "__main__":
                         help="dnt conf file")
     parser.add_argument('output', type=str,
                         help="output path")
-    parser.add_argument('schema', type=str,
-                        help="schema: del or sub")
+    parser.add_argument('scheme', type=str,
+                        help="scheme: del or sub")
 
     args = parser.parse_args()
     print(args)
-    schema = args.schema
-    restore(args.dnt_src, args.dnt_ini, args.output, args.schema)
+    scheme = args.scheme
+    restore(args.dnt_src, args.dnt_ini, args.output, args.scheme)
     
