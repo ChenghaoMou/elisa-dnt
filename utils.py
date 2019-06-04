@@ -32,7 +32,6 @@ rules = {
     }
 }
 
-RULES = None
 MARKERS = [chr(x) for x in range(0x4DC0, 0x4DFF)]
 
 options = {
@@ -52,8 +51,7 @@ options = {
 
 
 
-def find(string: str) -> list:
-    global RULES
+def find(string: str, RULES: dict) -> list:
     matches = itertools.chain(*[exp.finditer(string) for exp in RULES.values()])
     matches = [match for match in sorted(matches, key=lambda m: (m.start(0), -m.end(0)))]
     filtered_matches = []
@@ -146,8 +144,7 @@ def mark(string: str, matches: list, scheme: str = "sub") -> tuple:
         return segments, modification, lead
 
 
-def visual(string: str, matches: list, options) -> None:
-    global RULES
+def visual(string: str, matches: list, options: dict, RULES: dict) -> None:
     def colorize(match, text):
         cls = [key for key, value in RULES.items() if value == match.re][0]
         if cls in options["categories"]:
@@ -169,14 +166,14 @@ def visual(string: str, matches: list, options) -> None:
     return res
 
 
-def split(corpus_path, corpus_output, ini_output, scheme="del", ref=""):
+def split(corpus_path, corpus_output, ini_output, scheme: str, ref: str, RULES: dict):
 
     with open(corpus_path) as source, open(corpus_output, "w") as o_source, open(ini_output, "w") as o_source_ini:
 
         if ref == "":
             for src in source.readlines():
                 src = src.strip('\n')
-                src_matches = find(src)
+                src_matches = find(src, RULES)
                 src_after, src_mod, src_lead = mark(src, src_matches, scheme=scheme)
                 if scheme == "del":
                     for seg in src_after:
@@ -206,8 +203,8 @@ def split(corpus_path, corpus_output, ini_output, scheme="del", ref=""):
                 src_line = src_line.strip('\n')
                 tgt_line = tgt_line.strip('\n')
                 
-                src_matches = find(src_line)
-                tgt_matches = find(tgt_line)
+                src_matches = find(src_line, RULES)
+                tgt_matches = find(tgt_line, RULES)
                 src_matches_text = [src_line[m.start(0):m.end(0)] for m in src_matches]
                 tgt_matches_text = [tgt_line[m.start(0):m.end(0)] for m in tgt_matches]
                 x_matches = list(set(src_matches_text).intersection(set(tgt_matches_text)))

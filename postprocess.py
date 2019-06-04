@@ -1,6 +1,6 @@
 from utils import restore
 import argparse
-import re
+import regex as re
 
 if __name__ == "__main__":
 
