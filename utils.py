@@ -6,6 +6,7 @@ import os
 import argparse
 import emoji
 import string
+import warnings
 
 rules = {
     "del": {
@@ -280,5 +281,10 @@ def restore(dnt_path, ini_path, output, scheme="del"):
                 new_translation = translation
                 for char in translation:
                     if char in MARKERS:
+                        if ord(char) - 0x4DC0 >= len(segments):
+                            warnings.warn("Wired source sentence: {}".format(translation), Warning)
+                            warnings.warn(" ".join(segments), Warning) 
+                            continue
+                        
                         new_translation = new_translation.replace(char, segments[ord(char) - 0x4DC0])
                 o.write(new_translation + '\n')
