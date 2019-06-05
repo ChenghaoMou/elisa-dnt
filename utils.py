@@ -284,7 +284,6 @@ def restore(dnt_path, ini_path, output, scheme="del"):
                         if ord(char) - 0x4DC0 >= len(segments):
                             warnings.warn("Wired source sentence: {}".format(translation), Warning)
                             warnings.warn(" ".join(segments), Warning) 
-                            continue
-                        
-                        new_translation = new_translation.replace(char, segments[ord(char) - 0x4DC0])
+                            continue 
+                        new_translation = new_translation.replace(char, segments[min(ord(char) - 0x4DC0, len(segments)-1)])
                 o.write(new_translation + '\n')
