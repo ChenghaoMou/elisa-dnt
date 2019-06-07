@@ -1,7 +1,7 @@
 # encoding: utf-8
 # Created by chenghaomou at 2019-05-23
 
-from extract import find
+from utils import find
 
 if __name__ == '__main__':
     lang = ['hau', 'tgl', 'urd', 'tur', 'swa']
