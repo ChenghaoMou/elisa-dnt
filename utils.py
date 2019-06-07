@@ -172,7 +172,9 @@ def split(corpus_path, corpus_output, ini_output, scheme: str, ref: str, RULES: 
     with open(corpus_path) as source, open(corpus_output, "w") as o_source, open(ini_output, "w") as o_source_ini:
 
         if ref == "":
+            total_sents, total_matches, total_match_sents = 0, 0, 0
             for src in source.readlines():
+                total_sents += 1
                 src = src.strip('\n')
                 src_matches = find(src, RULES)
                 src_after, src_mod, src_lead = mark(src, src_matches, scheme=scheme)
@@ -183,6 +185,8 @@ def split(corpus_path, corpus_output, ini_output, scheme: str, ref: str, RULES: 
                     o_source.write(src_after + "\n")
 
                 if src_matches:
+                    total_match_sents += 1
+                    total_matches += len(src_mod)
                     if scheme == "del":
                         if src_after:
                             o_source_ini.write(("YL" if src_lead and len(src_after) >= len(src_mod) else "YS" if src_lead else \
@@ -194,6 +198,7 @@ def split(corpus_path, corpus_output, ini_output, scheme: str, ref: str, RULES: 
                         o_source_ini.write('\t'.join(["SUB"] + src_mod) + "\n")
                 else:
                     o_source_ini.write("IGNORE\n")
+            print(f"{total_matches} LI tokens found in {total_match_sents}/{total_sents} sentences {corpus_path}")
         else:
             assert scheme != "del", "ref is not required for del scheme!"
 
