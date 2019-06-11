@@ -20,20 +20,21 @@ if __name__ == "__main__":
     parser.add_argument('--fa_output', type=str,
                         help="[Post]File path to the output file")
 
-    parser.add_argument('--fb_src', nargs=1,
+    parser.add_argument('--fb_src', type=str,
                         help='[Pre]File path to the source file')
-    parser.add_argument('--fb_src_output', nargs=1,
+    parser.add_argument('--fb_src_output', type=str,
                         help='[Pre]File path to the source output file')
-    parser.add_argument('--fb_ini_output', nargs=1,
+    parser.add_argument('--fb_ini_output', type=str,
                         help='[Pre]File path to the source ini file')
-    parser.add_argument('--fb_tgt', nargs=1, required=False,
+    parser.add_argument('--fb_tgt', type=str, required=False,
                         help='[Pre]File path to the target file')
     parser.add_argument('--pb_cross', dest='pb_cross', default=False, action='store_true',
                         help='[Pre]Parameter for whether use reference target file for regex extraction')
-    parser.add_argument('--fb_visual', nargs=1,
+    parser.add_argument('--fb_visual', type=str,
                         help="[Pre]File path to visualization html file")
 
     args = parser.parse_args()
+    print(args)
 
     scheme = args.p_scheme
 
@@ -41,11 +42,11 @@ if __name__ == "__main__":
         restore(args.fa_dnt_src, args.fa_dnt_ini, args.fa_output, args.p_scheme)
         exit(0)
 
-    RULES = {key: re.compile(value) for key, value in rules[args.scheme].items()}
-    RULES["comb"] = re.compile("(" + "|".join(rules[args.scheme].values()) + ")+")
+    RULES = {key: re.compile(value) for key, value in rules[args.p_scheme].items()}
+    RULES["comb"] = re.compile("(" + "|".join(rules[args.p_scheme].values()) + ")+")
 
     if args.fb_visual:
-        with open(args.fb_visual[0], "w") as o:
+        with open(args.fb_visual, "w") as o:
             o.write("""
                 <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro&display=swap&subset=cyrillic,cyrillic-ext,greek,greek-ext,latin-ext,vietnamese" rel="stylesheet">
                 <style>
