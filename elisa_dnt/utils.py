@@ -1,9 +1,6 @@
 # encoding: utf-8
 # Created by chenghaomou at 2019-05-22
 import itertools
-import regex as re
-import os
-import argparse
 import emoji
 import string
 import warnings
@@ -145,7 +142,8 @@ def mark(string: str, matches: list, scheme: str = "sub") -> tuple:
         return segments, modification, lead
 
 
-def visual(string: str, matches: list, options: dict, RULES: dict) -> None:
+def visual(string: str, matches: list, options: dict, RULES: dict) -> str:
+
     def colorize(match, text):
         cls = [key for key, value in RULES.items() if value == match.re][0]
         if cls in options["categories"]:
