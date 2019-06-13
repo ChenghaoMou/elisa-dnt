@@ -4,6 +4,9 @@ import itertools
 import emoji
 import string
 import warnings
+from collections import namedtuple
+
+Match = namedtuple('Match', 'start end re')
 
 rules = {
     "del": {
@@ -15,7 +18,8 @@ rules = {
         "html": r"( *(<\/?(a|img|div).*?>)+ *)",
         "twitter": r"( *pic\.twitter\.com/[a-zA-Z0-9]+ *)",
         "emoticon": r"((?![\w]) *(:\)+|:-+\)+|:\(+|:-+\(+|;\)+|;-+\)+|:-+O|8-+|:P|<3|:<|:D|:\||:S|:\$|:\/|:-+\/)+ *(?![\w]))",
-        "emoji": u" *[" +  "".join(set(x for y in list(map(list, emoji.EMOJI_UNICODE.values())) for x in y if len(x) == 1 and x not in string.punctuation + '0123456789')) + "]+ *"
+        "emoji": u" *[" + "".join(set(x for y in list(map(list, emoji.EMOJI_UNICODE.values())) for x in y if
+                                      len(x) == 1 and x not in string.punctuation + '0123456789')) + "]+ *"
     },
     "sub": {
         "email": r"(?i)([\w!#$%&'*+/=?^`{|}~-]+(?:\.[\w!#$%&'*+/=?^`{|}~-]+)*@(?:[a-z\d](?:[a-z\d-]*[a-z\d])?\.)+[a-z\d](?:[a-z\d-]*[a-z\d])?)",
@@ -26,7 +30,8 @@ rules = {
         "html": r"((<\/?(a|img|div).*?>)+)",
         "twitter": r"(pic\.twitter\.com/[a-zA-Z0-9]+)",
         "emoticon": r"((?![\w])(:\)+|:-+\)+|:\(+|:-+\(+|;\)+|;-+\)+|:-+O|8-+|:P|<3|:<|:D|:\||:S|:\$|:\/|:-+\/)+(?![\w]))",
-        "emoji": u"[" +  "".join(set(x for y in list(map(list, emoji.EMOJI_UNICODE.values())) for x in y if len(x) == 1 and x not in string.punctuation + '0123456789')) + "]+"
+        "emoji": u"[" + "".join(set(x for y in list(map(list, emoji.EMOJI_UNICODE.values())) for x in y if
+                                    len(x) == 1 and x not in string.punctuation + '0123456789')) + "]+"
     }
 }
 
@@ -48,17 +53,19 @@ options = {
 }
 
 
-
 def find(string: str, RULES: dict) -> list:
-    matches = itertools.chain(*[exp.finditer(string) for exp in RULES.values()])
+    matches = itertools.chain(*[exp.finditer(string) for key, exp in RULES.items() if key != "comb"])
     matches = [match for match in sorted(matches, key=lambda m: (m.start(0), -m.end(0)))]
     filtered_matches = []
 
     for i, match in enumerate(matches):
-        if i > 0 and filtered_matches[-1].start(0) <= match.start(0) < filtered_matches[-1].end(0):
+        if i > 0 and filtered_matches[-1].start <= match.start(0) < match.end(0) <= filtered_matches[-1].end:
             continue
+        elif i > 0 and filtered_matches[-1].start <= match.start(0) <= filtered_matches[-1].end:
+            filtered_matches[-1] = Match(filtered_matches[-1].start, max(match.end(0), filtered_matches[-1].end),
+                                         re=RULES["comb"])
         else:
-            filtered_matches.append(match)
+            filtered_matches.append(Match(match.start(0), match.end(0), re=match.re))
 
     return filtered_matches
 
@@ -70,7 +77,7 @@ def mark(string: str, matches: list, scheme: str = "sub") -> tuple:
         modification = []
 
         for i, match in enumerate(matches):
-            start, end = match.span(0)
+            start, end = match.start, match.end
             text = string[start:end]
             modification.append(text)
 
@@ -85,7 +92,7 @@ def mark(string: str, matches: list, scheme: str = "sub") -> tuple:
         segments = []
         remain = string
         for i, match in enumerate(matches):
-            start, end = match.span(0)
+            start, end = match.start, match.end
             if start == 0:
                 lead = True
             text = string[start:end]
@@ -143,7 +150,6 @@ def mark(string: str, matches: list, scheme: str = "sub") -> tuple:
 
 
 def visual(string: str, matches: list, options: dict, RULES: dict) -> str:
-
     def colorize(match, text):
         cls = [key for key, value in RULES.items() if value == match.re][0]
         if cls in options["categories"]:
@@ -158,7 +164,7 @@ def visual(string: str, matches: list, options: dict, RULES: dict) -> str:
 
     res = string
     for match in matches:
-        start, end = match.span(0)
+        start, end = match.start, match.end
         text = string[start:end]
         res = res.replace(text, colorize(match, text))
 
@@ -166,7 +172,6 @@ def visual(string: str, matches: list, options: dict, RULES: dict) -> str:
 
 
 def split(corpus_path, corpus_output, ini_output, scheme: str, ref: str, RULES: dict):
-
     with open(corpus_path) as source, open(corpus_output, "w") as o_source, open(ini_output, "w") as o_source_ini:
 
         if ref == "":
@@ -187,9 +192,10 @@ def split(corpus_path, corpus_output, ini_output, scheme: str, ref: str, RULES: 
                     total_matches += len(src_mod)
                     if scheme == "del":
                         if src_after:
-                            o_source_ini.write(("YL" if src_lead and len(src_after) >= len(src_mod) else "YS" if src_lead else \
-                                "NL" if not src_lead and len(src_after) > len(src_mod) else "NS"
-                                ) + "\t" + "\t".join(src_mod) + "\n")
+                            o_source_ini.write(
+                                ("YL" if src_lead and len(src_after) >= len(src_mod) else "YS" if src_lead else \
+                                    "NL" if not src_lead and len(src_after) > len(src_mod) else "NS"
+                                 ) + "\t" + "\t".join(src_mod) + "\n")
                         else:
                             o_source_ini.write("EMPTY" + "\t" + "\t".join(src_mod) + "\n")
                     else:
@@ -202,11 +208,11 @@ def split(corpus_path, corpus_output, ini_output, scheme: str, ref: str, RULES: 
 
             src_lines = source.readlines()
             tgt_lines = open(ref).readlines()
-            
+
             for src_line, tgt_line in zip(src_lines, tgt_lines):
                 src_line = src_line.strip('\n')
                 tgt_line = tgt_line.strip('\n')
-                
+
                 src_matches = find(src_line, RULES)
                 tgt_matches = find(tgt_line, RULES)
                 src_matches_text = [src_line[m.start(0):m.end(0)] for m in src_matches]
@@ -215,9 +221,9 @@ def split(corpus_path, corpus_output, ini_output, scheme: str, ref: str, RULES: 
                 x_src_matches = [m for m in src_matches if src_line[m.start(0):m.end(0)] in x_matches]
 
                 src_after, src_mod, src_lead = mark(src_line, x_src_matches, scheme=scheme)
-                
+
                 o_source.write(src_after + "\n")
-                
+
                 if x_matches:
                     o_source_ini.write('\t'.join(["SUB"] + src_mod) + "\n")
                 else:
@@ -243,12 +249,12 @@ def restore(dnt_path, ini_path, output, scheme="del"):
                     j += 1
                     i += 1
                     continue
-                
+
                 if lead == "EMPTY":
                     o.write("".join(tokens) + "\n")
                     i += 1
                     continue
-                
+
                 if lead == "YL":
                     for token in tokens:
                         placeholder.append(token)
@@ -286,7 +292,8 @@ def restore(dnt_path, ini_path, output, scheme="del"):
                     if char in MARKERS:
                         if ord(char) - 0x4DC0 >= len(segments):
                             warnings.warn("Wired source sentence: {}".format(translation), Warning)
-                            warnings.warn(" ".join(segments), Warning) 
-                            continue 
-                        new_translation = new_translation.replace(char, segments[min(ord(char) - 0x4DC0, len(segments)-1)])
+                            warnings.warn(" ".join(segments), Warning)
+                            continue
+                        new_translation = new_translation.replace(char,
+                                                                  segments[min(ord(char) - 0x4DC0, len(segments) - 1)])
                 o.write(new_translation + '\n')
