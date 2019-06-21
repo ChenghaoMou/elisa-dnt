@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setup(
     name='elisa-dnt',
-    version='0.0.5',
+    version='0.0.6',
     packages=['elisa_dnt'],
     url='https://github.com/ChenghaoMou/elisa-dnt',
     license='',
