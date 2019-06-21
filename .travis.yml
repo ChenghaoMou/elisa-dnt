@@ -1,0 +1,24 @@
+language: python
+cache: pip
+install: pip install -r requirements.txt
+script: python -m elisa_dnt --help
+
+notifications:
+  email:
+    on_failure: never
+    on_pull_requests: never
+
+deploy:
+  provider: pypi
+  user: Maxen1996
+  on:
+    # In this case I want to deploy only when a tag is present...
+    tags: true
+    branch:
+      - master
+      - - /v?(\d+\.)?(\d+\.)?(\*|\d+)$/
+  password:
+    secure: aCqfSS+bAotBkq95tEtCwKiFZ4aQeXo6XF9ePard7uO++q+odZj4zjI1WzcolJGHRLukEPkRWOXycWfEnUpBcoHTyiy4Sndumyf+yBSeWwuX2pX8qMPHYOdUQJ7zYFsdy7MPsC1e4VZ/iN7mO5sQI0386eZSNIvNLXQ3aOvoCT8ynZaIK70EBRj0o5/7SVCQ/jTESjL5lWj1cFoP7inam2TE7XCe7298L7mfEyAO/M+AQNTEUqDcobGJFQwsdd+AcN8VAjzDTDX4uUl9aN4dQid+oqewC/PxnEOFCn6s+Feds+tvywktYwDPTyQkHx2H+I2TrFl7He+Ylt7B3Ke4bl4aIum1m28I1vxNehYvuKZj8LU5tREuoGZhyyhzKuL1ZibWneMzug5PwAF2X/Fu45MINYhl9zwX0gvSWpIHidS/VZyC9Uveur24DHKz9ycSZjBYn9BJQsPKiuOm3mzNz53XWml//ZdRcOxIIR/QoW4egtiPatUGSlfAgTV+aGVBEJwHujGzAs8gbHWmZpDWRkfhQTSYjwraaHTX9NrPQZO9GTgAdE5DuU5cYFRLGKl/R75CRp4Yvwa9prELibvJmxxPEqSV0pmgBdEr71a8gZR2ZUUIlm2kKS4Km0533U1xVRuIclMjt9jKtu9U1YVsmWtbt7kgC/AxwawT4s1unw4=
+  distributions: sdist
+  skip_existing: true
+
