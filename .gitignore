@@ -7,3 +7,5 @@ statistics.py
 *.jpg
 *.sh
 report.md
+dist/*
+elisa_dnt.egg-info/*
