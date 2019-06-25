@@ -68,7 +68,7 @@ if __name__ == "__main__":
                 matches = find(line, RULES)
                 if matches:
                     res = visual(line, matches, options, RULES)
-                    with open(args.fb_visual[0], "a+") as o:
+                    with open(args.fb_visual, "a+") as o:
                         o.write(f"<p>{res}</p>" + "\n")
         else:
             src_lines, tgt_lines = open(path).readlines(), open(args.fb_tgt).readlines()
@@ -89,9 +89,9 @@ if __name__ == "__main__":
 
                 if x_matches:
                     res = visual(src_line, x_src_matches, options, RULES)
-                    with open(args.fb_visual[0], "a+") as o:
+                    with open(args.fb_visual, "a+") as o:
                         o.write(f"<p>{res}</p>" + "\n")
 
                     res = visual(tgt_line, x_tgt_matches, options, RULES)
-                    with open(args.fb_visual[0], "a+") as o:
+                    with open(args.fb_visual, "a+") as o:
                         o.write(f"<p>{res}</p>" + "\n")
