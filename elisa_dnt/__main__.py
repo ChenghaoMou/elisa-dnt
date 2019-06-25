@@ -77,15 +77,15 @@ if __name__ == "__main__":
                 src_matches = find(src_line, RULES)
                 tgt_matches = find(tgt_line, RULES)
 
-                src_matches_text = [src_line[m.start(0):m.end(0)] for m in src_matches]
-                tgt_matches_text = [tgt_line[m.start(0):m.end(0)] for m in tgt_matches]
+                src_matches_text = [src_line[m.start:m.end] for m in src_matches]
+                tgt_matches_text = [tgt_line[m.start:m.end] for m in tgt_matches]
 
                 x_matches = list(set(src_matches_text).intersection(set(tgt_matches_text)))
 
                 x_src_matches = [m for m in src_matches if
-                                 src_line[m.start(0):m.end(0)] in x_matches] if args.pb_cross else src_matches
+                                 src_line[m.start:m.end] in x_matches] if args.pb_cross else src_matches
                 x_tgt_matches = [m for m in tgt_matches if
-                                 tgt_line[m.start(0):m.end(0)] in x_matches] if args.pb_cross else tgt_matches
+                                 tgt_line[m.start:m.end] in x_matches] if args.pb_cross else tgt_matches
 
                 if x_matches:
                     res = visual(src_line, x_src_matches, options, RULES)
