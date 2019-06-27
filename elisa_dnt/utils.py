@@ -1,73 +1,87 @@
 # encoding: utf-8
 # Created by chenghaomou at 2019-05-22
+
 import itertools
-import emoji
-import string
+import regex as re
 import warnings
 from collections import namedtuple
 
-Match = namedtuple('Match', 'start end re')
-
-rules = {
-    "del": {
-        "email": r"(?i)( *[\w!#$%&'*+/=?^`{|}~-]+(?:\.[\w!#$%&'*+/=?^`{|}~-]+)*@(?:[a-z\d](?:[a-z\d-]*[a-z\d])?\.)+[a-z\d](?:[a-z\d-]*[a-z\d])? *)",
-        "url": r"( *\b((?:https?:(?:/{1,3}|[a-z0-9%])|[a-z0-9.\-]+[.](?:com|net|org|edu|gov|mil|aero|asia|biz|cat|coop|info|int|jobs|mobi|museum|name|post|pro|tel|travel|xxx|ac|ad|ae|af|ag|ai|al|am|an|ao|aq|ar|as|at|au|aw|ax|az|ba|bb|bd|be|bf|bg|bh|bi|bj|bm|bn|bo|br|bs|bt|bv|bw|by|bz|ca|cc|cd|cf|cg|ch|ci|ck|cl|cm|cn|co|cr|cs|cu|cv|cx|cy|cz|dd|de|dj|dk|dm|do|dz|ec|ee|eg|eh|er|es|et|eu|fi|fj|fk|fm|fo|fr|ga|gb|gd|ge|gf|gg|gh|gi|gl|gm|gn|gp|gq|gr|gs|gt|gu|gw|gy|hk|hm|hn|hr|ht|hu|id|ie|il|im|in|io|iq|ir|is|it|je|jm|jo|jp|ke|kg|kh|ki|km|kn|kp|kr|kw|ky|kz|la|lb|lc|li|lk|lr|ls|lt|lu|lv|ly|ma|mc|md|me|mg|mh|mk|ml|mm|mn|mo|mp|mq|mr|ms|mt|mu|mv|mw|mx|my|mz|na|nc|ne|nf|ng|ni|nl|no|np|nr|nu|nz|om|pa|pe|pf|pg|ph|pk|pl|pm|pn|pr|ps|pt|pw|py|qa|re|ro|rs|ru|rw|sa|sb|sc|sd|se|sg|sh|si|sj|Ja|sk|sl|sm|sn|so|sr|ss|st|su|sv|sx|sy|sz|tc|td|tf|tg|th|tj|tk|tl|tm|tn|to|tp|tr|tt|tv|tw|tz|ua|ug|uk|us|uy|uz|va|vc|ve|vg|vi|vn|vu|wf|ws|ye|yt|yu|za|zm|zw)/)(?:[^\s()<>{}\[\]]+|\([^\s()]*?\([^\s()]+\)[^\s()]*?\)|\([^\s]+?\))+(?:\([^\s()]*?\([^\s()]+\)[^\s()]*?\)|\([^\s]+?\)|[^\s`!()\[\]{};:\'\".,<>?«»“”‘’])|(?:(?<!@)[a-z0-9]+(?:[.\-][a-z0-9]+)*[.](?:com|net|org|edu|gov|mil|aero|asia|biz|cat|coop|info|int|jobs|mobi|museum|name|post|pro|tel|travel|xxx|ac|ad|ae|af|ag|ai|al|am|an|ao|aq|ar|as|at|au|aw|ax|az|ba|bb|bd|be|bf|bg|bh|bi|bj|bm|bn|bo|br|bs|bt|bv|bw|by|bz|ca|cc|cd|cf|cg|ch|ci|ck|cl|cm|cn|co|cr|cs|cu|cv|cx|cy|cz|dd|de|dj|dk|dm|do|dz|ec|ee|eg|eh|er|es|et|eu|fi|fj|fk|fm|fo|fr|ga|gb|gd|ge|gf|gg|gh|gi|gl|gm|gn|gp|gq|gr|gs|gt|gu|gw|gy|hk|hm|hn|hr|ht|hu|id|ie|il|im|in|io|iq|ir|is|it|je|jm|jo|jp|ke|kg|kh|ki|km|kn|kp|kr|kw|ky|kz|la|lb|lc|li|lk|lr|ls|lt|lu|lv|ly|ma|mc|md|me|mg|mh|mk|ml|mm|mn|mo|mp|mq|mr|ms|mt|mu|mv|mw|mx|my|mz|na|nc|ne|nf|ng|ni|nl|no|np|nr|nu|nz|om|pa|pe|pf|pg|ph|pk|pl|pm|pn|pr|ps|pt|pw|py|qa|re|ro|rs|ru|rw|sa|sb|sc|sd|se|sg|sh|si|sj|Ja|sk|sl|sm|sn|so|sr|ss|st|su|sv|sx|sy|sz|tc|td|tf|tg|th|tj|tk|tl|tm|tn|to|tp|tr|tt|tv|tw|tz|ua|ug|uk|us|uy|uz|va|vc|ve|vg|vi|vn|vu|wf|ws|ye|yt|yu|za|zm|zw)\b/?(?!@))) *)",
-        "hashtag": r"( *(#\p{N}*[\p{L}_'-]+[\p{L}\p{N}_+-]*)+ *)",
-        "mention": r"( *(@[\w\-]+)+ *)",
-        "time": r"(?i)( *@((([01]?\d|2[0-3]):([0-5]\d)|24:00) ?(pm|am|p\.m|a\.m)?) *)",
-        "html": r"( *(<\/?(a|img|div).*?>)+ *)",
-        "twitter": r"( *pic\.twitter\.com/[a-zA-Z0-9]+ *)",
-        "emoticon": r"((?![\w]) *(:\)+|:-+\)+|:\(+|:-+\(+|;\)+|;-+\)+|:-+O|8-+|:P|<3|:<|:D|:\||:S|:\$|:\/|:-+\/)+ *(?![\w]))",
-        "emoji": u" *[" + "".join(set(x for y in list(map(list, emoji.EMOJI_UNICODE.values())) for x in y if
-                                      len(x) == 1 and x not in string.punctuation + '0123456789')) + "]+ *"
-    },
-    "sub": {
-        "email": r"(?i)([\w!#$%&'*+/=?^`{|}~-]+(?:\.[\w!#$%&'*+/=?^`{|}~-]+)*@(?:[a-z\d](?:[a-z\d-]*[a-z\d])?\.)+[a-z\d](?:[a-z\d-]*[a-z\d])?)",
-        "url": r"(\b((?:https?:(?:/{1,3}|[a-z0-9%])|[a-z0-9.\-]+[.](?:com|net|org|edu|gov|mil|aero|asia|biz|cat|coop|info|int|jobs|mobi|museum|name|post|pro|tel|travel|xxx|ac|ad|ae|af|ag|ai|al|am|an|ao|aq|ar|as|at|au|aw|ax|az|ba|bb|bd|be|bf|bg|bh|bi|bj|bm|bn|bo|br|bs|bt|bv|bw|by|bz|ca|cc|cd|cf|cg|ch|ci|ck|cl|cm|cn|co|cr|cs|cu|cv|cx|cy|cz|dd|de|dj|dk|dm|do|dz|ec|ee|eg|eh|er|es|et|eu|fi|fj|fk|fm|fo|fr|ga|gb|gd|ge|gf|gg|gh|gi|gl|gm|gn|gp|gq|gr|gs|gt|gu|gw|gy|hk|hm|hn|hr|ht|hu|id|ie|il|im|in|io|iq|ir|is|it|je|jm|jo|jp|ke|kg|kh|ki|km|kn|kp|kr|kw|ky|kz|la|lb|lc|li|lk|lr|ls|lt|lu|lv|ly|ma|mc|md|me|mg|mh|mk|ml|mm|mn|mo|mp|mq|mr|ms|mt|mu|mv|mw|mx|my|mz|na|nc|ne|nf|ng|ni|nl|no|np|nr|nu|nz|om|pa|pe|pf|pg|ph|pk|pl|pm|pn|pr|ps|pt|pw|py|qa|re|ro|rs|ru|rw|sa|sb|sc|sd|se|sg|sh|si|sj|Ja|sk|sl|sm|sn|so|sr|ss|st|su|sv|sx|sy|sz|tc|td|tf|tg|th|tj|tk|tl|tm|tn|to|tp|tr|tt|tv|tw|tz|ua|ug|uk|us|uy|uz|va|vc|ve|vg|vi|vn|vu|wf|ws|ye|yt|yu|za|zm|zw)/)(?:[^\s()<>{}\[\]]+|\([^\s()]*?\([^\s()]+\)[^\s()]*?\)|\([^\s]+?\))+(?:\([^\s()]*?\([^\s()]+\)[^\s()]*?\)|\([^\s]+?\)|[^\s`!()\[\]{};:\'\".,<>?«»“”‘’])|(?:(?<!@)[a-z0-9]+(?:[.\-][a-z0-9]+)*[.](?:com|net|org|edu|gov|mil|aero|asia|biz|cat|coop|info|int|jobs|mobi|museum|name|post|pro|tel|travel|xxx|ac|ad|ae|af|ag|ai|al|am|an|ao|aq|ar|as|at|au|aw|ax|az|ba|bb|bd|be|bf|bg|bh|bi|bj|bm|bn|bo|br|bs|bt|bv|bw|by|bz|ca|cc|cd|cf|cg|ch|ci|ck|cl|cm|cn|co|cr|cs|cu|cv|cx|cy|cz|dd|de|dj|dk|dm|do|dz|ec|ee|eg|eh|er|es|et|eu|fi|fj|fk|fm|fo|fr|ga|gb|gd|ge|gf|gg|gh|gi|gl|gm|gn|gp|gq|gr|gs|gt|gu|gw|gy|hk|hm|hn|hr|ht|hu|id|ie|il|im|in|io|iq|ir|is|it|je|jm|jo|jp|ke|kg|kh|ki|km|kn|kp|kr|kw|ky|kz|la|lb|lc|li|lk|lr|ls|lt|lu|lv|ly|ma|mc|md|me|mg|mh|mk|ml|mm|mn|mo|mp|mq|mr|ms|mt|mu|mv|mw|mx|my|mz|na|nc|ne|nf|ng|ni|nl|no|np|nr|nu|nz|om|pa|pe|pf|pg|ph|pk|pl|pm|pn|pr|ps|pt|pw|py|qa|re|ro|rs|ru|rw|sa|sb|sc|sd|se|sg|sh|si|sj|Ja|sk|sl|sm|sn|so|sr|ss|st|su|sv|sx|sy|sz|tc|td|tf|tg|th|tj|tk|tl|tm|tn|to|tp|tr|tt|tv|tw|tz|ua|ug|uk|us|uy|uz|va|vc|ve|vg|vi|vn|vu|wf|ws|ye|yt|yu|za|zm|zw)\b/?(?!@))))",
-        "hashtag": r"((#\p{N}*[\p{L}_'-]+[\p{L}\p{N}_+-]*)+)",
-        "mention": r"((@[\w\-]+)+)",
-        "time": r"(?i)(@((([01]?\d|2[0-3]):([0-5]\d)|24:00) ?(pm|am|p\.m|a\.m)?))",
-        "html": r"((<\/?(a|img|div).*?>)+)",
-        "twitter": r"(pic\.twitter\.com/[a-zA-Z0-9]+)",
-        "emoticon": r"((?![\w])(:\)+|:-+\)+|:\(+|:-+\(+|;\)+|;-+\)+|:-+O|8-+|:P|<3|:<|:D|:\||:S|:\$|:\/|:-+\/)+(?![\w]))",
-        "emoji": u"[" + "".join(set(x for y in list(map(list, emoji.EMOJI_UNICODE.values())) for x in y if
-                                    len(x) == 1 and x not in string.punctuation + '0123456789')) + "]+"
-    }
-}
+Match = namedtuple('Match', 'start end cls')
 
 MARKERS = [chr(x) for x in range(0x4DC0, 0x4DFF)]
 
-options = {
-    "colors": {
-        "email": "background-image:linear-gradient(90deg, #a2fafc, #11a9fc);",
-        "url": "background-image:linear-gradient(90deg, #fcd766, #fc7f00);",
-        "html": "background-image:linear-gradient(90deg, #aa9cfc, #11a9fc);",
-        "mention": "background-image:linear-gradient(90deg, #abfca5, #fce43d);",
-        "time": "background-image:linear-gradient(90deg, #abfca5, #fce43d);",
-        "hashtag": "background-image:linear-gradient(90deg, #aa9cfc, #fc9ce7);",
-        "comb": "background-image:linear-gradient(90deg, #a2fafc, #fce43d);",
-        "emoticon": "background-image:linear-gradient(90deg, #FFFFFF, #fce43d);",
-        "emoji": "background-image:linear-gradient(90deg, #fce43d, #FFFFFF);",
-    },
-    "categories": ["email", "url", "html", "mention", "time", "hashtag", "comb", "emoticon", "emoji"],
-}
+
+def generate_options(path: str = 'elisa_dnt/rules.ini') -> dict:
+    colors = [
+        '#e3f2fd',
+        '#bbdefb',
+        '#90caf9',
+        '#64b5f6',
+        '#42a5f5',
+        '#2196f3',
+        '#1e88e5',
+        '#1976d2',
+        '#1565c0',
+        '#0d47a1'
+    ]
+    options = {'colors': {'comb': 'background-color: #4caf50;' }, 'categories': ['comb']}
+    with open(path) as i:
+        for j, line in enumerate(map(lambda x: x.strip('\n'), i.readlines())):
+            name, _ = line.split('=', 1)
+            options['categories'].append(name)
+            options['colors'][name] = f'background-color: {colors[j]};'
+        options['categories'].append('emoji')
+        options['colors']['emoji'] = f'background-color: {colors[(j+1)%len(colors)]};'
+
+    return options
 
 
-def find(string: str, RULES: dict) -> list:
-    matches = itertools.chain(*[exp.finditer(string) for key, exp in RULES.items() if key != "comb"])
-    matches = [match for match in sorted(matches, key=lambda m: (m.start(0), -m.end(0)))]
-    filtered_matches = []
+def load_rules(emoji_path: str = 'elisa_dnt/emojis.ini',
+               rule_path: str = 'elisa_dnt/rules.ini',
+               scheme: str = 'del',
+               ) -> dict:
 
-    for i, match in enumerate(matches):
-        if i > 0 and filtered_matches[-1].start <= match.start(0) < match.end(0) <= filtered_matches[-1].end:
-            continue
-        elif i > 0 and filtered_matches[-1].start <= match.start(0) <= filtered_matches[-1].end:
-            filtered_matches[-1] = Match(filtered_matches[-1].start, max(match.end(0), filtered_matches[-1].end),
-                                         re=RULES["comb"])
+    with open(emoji_path) as i:
+        emojis = '|'.join(list(map(lambda x: x.strip('\n'), i.readlines())))
+
+    rules = {}
+
+    with open(rule_path) as i:
+        for rule in map(lambda x: x.strip('\n'), i.readlines()):
+            name, value = rule.split('=', 1)
+            if scheme == "del":
+                rules[name] = re.compile(u"([ \u202b]*{}[ \u202b]*)".format(value))
+            else:
+                rules[name] = re.compile(r"({})".format(value))
+        if scheme == "del":
+            rules['emoji'] = re.compile(u'([ \u202b]*(?:' + emojis + ')[ \u202b]*)', re.UNICODE)
         else:
-            filtered_matches.append(Match(match.start(0), match.end(0), re=match.re))
+            rules['emoji'] = re.compile(r'(' + emojis + ')', re.UNICODE)
 
-    return filtered_matches
+        # print(rules['emoji'])
+
+    return rules
+
+
+def find(string: str, rules: dict) -> list:
+    # matches = itertools.chain(*[(key, exp.finditer(string)) ])
+    matches = [(key, match) for key, exp in rules.items() for match in exp.finditer(string)]
+    matches = [match for match in sorted(matches, key=lambda m: (m[-1].start(0), -(m[-1].end(0))))]
+    merged_matches = []
+
+    for i, (name, match) in enumerate(matches):
+        if i > 0 and merged_matches[-1].start <= match.start(0) < match.end(0) <= merged_matches[-1].end:
+            continue
+        elif i > 0 and merged_matches[-1].start <= match.start(0) <= merged_matches[-1].end + 1:
+            merged_matches[-1] = Match(merged_matches[-1].start,
+                                       max(match.end(0), merged_matches[-1].end),
+                                       'comb')
+        else:
+            merged_matches.append(Match(match.start(0),
+                                        match.end(0),
+                                        name))
+
+    return merged_matches
 
 
 def mark(string: str, matches: list, scheme: str = "sub") -> tuple:
@@ -149,9 +163,9 @@ def mark(string: str, matches: list, scheme: str = "sub") -> tuple:
         return segments, modification, lead
 
 
-def visual(string: str, matches: list, options: dict, RULES: dict) -> str:
+def visual(string: str, matches: list, options: dict, rules: dict) -> str:
     def colorize(match, text):
-        cls = [key for key, value in RULES.items() if value == match.re][0]
+        cls = match.cls
         if cls in options["categories"]:
             if "<" not in text and ">" not in text:
                 return f"""<span class="{cls}" title="{cls}">{text}</span>"""
@@ -163,15 +177,18 @@ def visual(string: str, matches: list, options: dict, RULES: dict) -> str:
             return text
 
     res = string
+    matched = set()
     for match in matches:
         start, end = match.start, match.end
         text = string[start:end]
-        res = res.replace(text, colorize(match, text))
+        if text not in matched:
+            res = res.replace(text, colorize(match, text))
+            matched.add(text)
 
     return res
 
 
-def split(corpus_path, corpus_output, ini_output, scheme: str, ref: str, RULES: dict):
+def split(corpus_path, corpus_output, ini_output, scheme: str, ref: str, rules: dict):
     with open(corpus_path) as source, open(corpus_output, "w") as o_source, open(ini_output, "w") as o_source_ini:
 
         if ref == "":
@@ -179,7 +196,7 @@ def split(corpus_path, corpus_output, ini_output, scheme: str, ref: str, RULES: 
             for src in source.readlines():
                 total_sents += 1
                 src = src.strip('\n')
-                src_matches = find(src, RULES)
+                src_matches = find(src, rules)
                 src_after, src_mod, src_lead = mark(src, src_matches, scheme=scheme)
                 if scheme == "del":
                     for seg in src_after:
@@ -213,8 +230,8 @@ def split(corpus_path, corpus_output, ini_output, scheme: str, ref: str, RULES: 
                 src_line = src_line.strip('\n')
                 tgt_line = tgt_line.strip('\n')
 
-                src_matches = find(src_line, RULES)
-                tgt_matches = find(tgt_line, RULES)
+                src_matches = find(src_line, rules)
+                tgt_matches = find(tgt_line, rules)
                 src_matches_text = [src_line[m.start(0):m.end(0)] for m in src_matches]
                 tgt_matches_text = [tgt_line[m.start(0):m.end(0)] for m in tgt_matches]
                 x_matches = list(set(src_matches_text).intersection(set(tgt_matches_text)))
@@ -297,3 +314,18 @@ def restore(dnt_path, ini_path, output, scheme="del"):
                         new_translation = new_translation.replace(char,
                                                                   segments[min(ord(char) - 0x4DC0, len(segments) - 1)])
                 o.write(new_translation + '\n')
+
+
+if __name__ == "__main__":
+
+    txt = """RT @jokateM: Utu humfanya mtu awe kipenzi cha watu,utu humfanya mtu awe kimbilio la watu,aliyekosa utu hana mvuto kwa watu. 🙏🏽❤ She writes [ar]: ملخص تغطية وكالة الانباء الرسمية لمظاهرات امس: مواطنين اعتدوا على الشرطة فاضطروها لاستخدام الغاز المسيل للدموع http://suna-sd.net/suna/showNews/-fJi7HGycvs26Azq7aG4mmjptp-NQZ_WndSuVb1-KMY/1 #الخرا ds.CRIME BE PART OF VODACOM SUCCESS: https://t.co/Wzo1EckNhe via @YouTube CEO wa @MeTL_Group, @moodewji akiwa katika majadiliano kwenye mkutano wa @africaceoforum unaofanyika Geneva, Switze... https://t.co/uBAXDYfmlQ
+@earadiofm: #MICHEZO Msanii na Mbunge wa Mikumi @ProfessorJayTz akiwa na Seleman Matola katika uwanja wa Taifa kushuhudia mechi kati ya...RT @earadiofm: #MICHEZO Msanii na Mbunge wa Mikumi @ProfessorJayTz akiwa na Seleman Matola katika uwanja wa Taifa kushuhudia mechi kati ya...@Youtube She writes [ar]: ملخص تغطية وكالة الانباء الرسمية لمظاهرات امس: مواطنين اعتدوا على الشرطة فاضطروها لاستخدام الغاز المسيل للدموع http://suna-sd.net/suna/showNews/-fJi7HGycvs26Azq7aG4mmjptp-NQZ_WndSuVb1-KMY/1 ‫#الخراء‬"""
+
+    rules = load_rules('emojis.ini', 'rules.ini', 'del')
+    options = generate_options('rules.ini')
+    matches = find(txt, rules)
+    spans = [txt[m.start:m.end] for m in matches]
+
+    print(spans)
+    print(mark(txt, find(txt, rules), 'del'))
+    print(visual(txt, matches, options, rules))

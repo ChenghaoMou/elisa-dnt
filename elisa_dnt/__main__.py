@@ -8,74 +8,79 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description='DNT process script')
 
-    parser.add_argument('p_step', type=str, choices=['pre', 'post'],
+    parser.add_argument('step', type=str, choices=['pre', 'post'],
                         help="Parameter for choosing between preprocess or postprocess")
-    parser.add_argument('p_scheme', type=str, choices=['del', 'sub'],
+    parser.add_argument('scheme', type=str, choices=['del', 'sub'],
                         help="Parameter for scheme")
 
-    parser.add_argument('--fa_dnt_src', type=str,
+    parser.add_argument('--dnt_src', type=str,
                         help='[Post]File path to the dnt source file')
-    parser.add_argument('--fa_dnt_ini', type=str,
+    parser.add_argument('--dnt_ini', type=str,
                         help="[Post]File path to the dnt conf file")
-    parser.add_argument('--fa_output', type=str,
+    parser.add_argument('--output', type=str,
                         help="[Post]File path to the output file")
 
-    parser.add_argument('--fb_src', type=str,
+    parser.add_argument('--src', type=str,
                         help='[Pre]File path to the source file')
-    parser.add_argument('--fb_src_output', type=str,
+    parser.add_argument('--src_output', type=str,
                         help='[Pre]File path to the source output file')
-    parser.add_argument('--fb_ini_output', type=str,
+    parser.add_argument('--ini_output', type=str,
                         help='[Pre]File path to the source ini file')
-    parser.add_argument('--fb_tgt', type=str, required=False,
+    parser.add_argument('--tgt', type=str, required=False,
                         help='[Pre]File path to the target file')
-    parser.add_argument('--pb_cross', dest='pb_cross', default=False, action='store_true',
+    parser.add_argument('--cross', dest='pb_cross', default=False, action='store_true',
                         help='[Pre]Parameter for whether use reference target file for regex extraction')
-    parser.add_argument('--fb_visual', type=str,
+    parser.add_argument('--visual', type=str,
                         help="[Pre]File path to visualization html file")
 
     args = parser.parse_args()
     print(args)
 
-    scheme = args.p_scheme
+    scheme = args.scheme
+    
+    rules = load_rules(scheme=scheme)
+    options = generate_options()
 
-    if args.p_step == "post":
-        restore(args.fa_dnt_src, args.fa_dnt_ini, args.fa_output, args.p_scheme)
+    if args.step == "post":
+        restore(args.dnt_src, args.dnt_ini, args.output, args.scheme)
         exit(0)
 
-    RULES = {key: re.compile(value) for key, value in rules[args.p_scheme].items()}
-    RULES["comb"] = re.compile("(" + "|".join(rules[args.p_scheme].values()) + ")+")
-
-    if args.fb_visual:
-        with open(args.fb_visual, "w") as o:
+    if args.visual:
+        with open(args.visual, "w") as o:
             o.write("""
-                <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro&display=swap&subset=cyrillic,cyrillic-ext,greek,greek-ext,latin-ext,vietnamese" rel="stylesheet">
+            <html>
+                <head>
+                <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+                <link href="https://fonts.googleapis.com/css?family=Open+Sans&display=swap&subset=cyrillic,cyrillic-ext,greek,greek-ext,latin-ext,vietnamese" rel="stylesheet">
                 <style>
                     html,body{
-                        font-family: 'Source Sans Pro', sans-serif;
+                        font-family: 'Open Sans', sans-serif;
                     }
                     """ + "\n".join([".%s {%s}" % (key, value) for key, value in options["colors"].items()]) + """
                 </style>
+                <head>
+                <body>
                 """)
 
-    path = args.fb_src
+    path = args.src
 
-    split(args.fb_src, args.fb_src_output, args.fb_ini_output, scheme=args.p_scheme,
-          ref=args.fb_tgt if args.p_scheme == "sub" and args.pb_cross else "", RULES=RULES)
+    split(args.src, args.src_output, args.ini_output, scheme=args.scheme,
+          ref=args.tgt if args.scheme == "sub" and args.pb_cross else "", rules=rules)
 
-    if args.fb_visual:
-        if args.fb_tgt == "":
+    if args.visual:
+        if args.tgt == "":
             for line in open(path):
-                matches = find(line, RULES)
+                matches = find(line, rules)
                 if matches:
-                    res = visual(line, matches, options, RULES)
-                    with open(args.fb_visual, "a+") as o:
+                    res = visual(line, matches, options, rules)
+                    with open(args.visual, "a+") as o:
                         o.write(f"<p>{res}</p>" + "\n")
         else:
-            src_lines, tgt_lines = open(path).readlines(), open(args.fb_tgt).readlines()
+            src_lines, tgt_lines = open(path).readlines(), open(args.tgt).readlines()
             assert len(src_lines) == len(tgt_lines)
             for src_line, tgt_line in zip(src_lines, tgt_lines):
-                src_matches = find(src_line, RULES)
-                tgt_matches = find(tgt_line, RULES)
+                src_matches = find(src_line, rules)
+                tgt_matches = find(tgt_line, rules)
 
                 src_matches_text = [src_line[m.start:m.end] for m in src_matches]
                 tgt_matches_text = [tgt_line[m.start:m.end] for m in tgt_matches]
@@ -88,10 +93,13 @@ if __name__ == "__main__":
                                  tgt_line[m.start:m.end] in x_matches] if args.pb_cross else tgt_matches
 
                 if x_matches:
-                    res = visual(src_line, x_src_matches, options, RULES)
-                    with open(args.fb_visual, "a+") as o:
+                    res = visual(src_line, x_src_matches, options, rules)
+                    with open(args.visual, "a+") as o:
                         o.write(f"<p>{res}</p>" + "\n")
 
-                    res = visual(tgt_line, x_tgt_matches, options, RULES)
-                    with open(args.fb_visual, "a+") as o:
+                    res = visual(tgt_line, x_tgt_matches, options, rules)
+                    with open(args.visual, "a+") as o:
                         o.write(f"<p>{res}</p>" + "\n")
+
+            with open(args.visual, "a+") as o:
+                o.write('</body></html>')

@@ -9,3 +9,6 @@ statistics.py
 report.md
 dist/*
 elisa_dnt.egg-info/*
+/elisa.train_1.swa
+/visual.html
+/elisa.train_1.swa.del.ini
