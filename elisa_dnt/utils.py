@@ -29,36 +29,23 @@ def generate_options(path: str = 'elisa_dnt/rules.ini') -> dict:
         for j, line in enumerate(map(lambda x: x.strip('\n'), i.readlines())):
             name, _ = line.split('=', 1)
             options['categories'].append(name)
-            options['colors'][name] = f'background-color: {colors[j]};'
+            options['colors'][name] = f'background-color: {colors[j%len(colors)]};'
         options['categories'].append('emoji')
         options['colors']['emoji'] = f'background-color: {colors[(j+1)%len(colors)]};'
 
     return options
 
 
-def load_rules(emoji_path: str = 'elisa_dnt/emojis.ini',
-               rule_path: str = 'elisa_dnt/rules.ini',
-               scheme: str = 'del',
-               ) -> dict:
-
-    with open(emoji_path) as i:
-        emojis = '|'.join(list(map(lambda x: x.strip('\n'), i.readlines())))
-
+def load_rules(rule_path: str = 'elisa_dnt/rules.ini', scheme: str = 'del') -> dict:
     rules = {}
 
     with open(rule_path) as i:
         for rule in map(lambda x: x.strip('\n'), i.readlines()):
             name, value = rule.split('=', 1)
             if scheme == "del":
-                rules[name] = re.compile(u"([ \u200a-\u202f]*{}[ \u200a-\u202f]*)".format(value))
+                rules[name] = re.compile(u"( *{} *)".format(value))
             else:
                 rules[name] = re.compile(r"({})".format(value))
-        if scheme == "del":
-            rules['emoji'] = re.compile(u'([ \u200a-\u202f]*(?:' + emojis + ')[ \u200a-\u202f]*)', re.UNICODE)
-        else:
-            rules['emoji'] = re.compile(r'(' + emojis + ')', re.UNICODE)
-
-        # print(rules['emoji'])
 
     return rules
 
@@ -321,7 +308,7 @@ if __name__ == "__main__":
     txt = """RT @jokateM: Utu humfanya mtu awe kipenzi cha watu,utu humfanya mtu awe kimbilio la watu,aliyekosa utu hana mvuto kwa watu. 🙏🏽❤ She writes [ar]: ملخص تغطية وكالة الانباء الرسمية لمظاهرات امس: مواطنين اعتدوا على الشرطة فاضطروها لاستخدام الغاز المسيل للدموع http://suna-sd.net/suna/showNews/-fJi7HGycvs26Azq7aG4mmjptp-NQZ_WndSuVb1-KMY/1 #الخرا ds.CRIME BE PART OF VODACOM SUCCESS: https://t.co/Wzo1EckNhe via @YouTube CEO wa @MeTL_Group, @moodewji akiwa katika majadiliano kwenye mkutano wa @africaceoforum unaofanyika Geneva, Switze... https://t.co/uBAXDYfmlQ
 @earadiofm: #MICHEZO Msanii na Mbunge wa Mikumi @ProfessorJayTz akiwa na Seleman Matola katika uwanja wa Taifa kushuhudia mechi kati ya...RT @earadiofm: #MICHEZO Msanii na Mbunge wa Mikumi @ProfessorJayTz akiwa na Seleman Matola katika uwanja wa Taifa kushuhudia mechi kati ya...@Youtube She writes [ar]: ملخص تغطية وكالة الانباء الرسمية لمظاهرات امس: مواطنين اعتدوا على الشرطة فاضطروها لاستخدام الغاز المسيل للدموع http://suna-sd.net/suna/showNews/-fJi7HGycvs26Azq7aG4mmjptp-NQZ_WndSuVb1-KMY/1 ‫#الخراء‬"""
 
-    rules = load_rules('emojis.ini', 'rules.ini', 'del')
+    rules = load_rules('rules.ini', 'del')
     options = generate_options('rules.ini')
     matches = find(txt, rules)
     spans = [txt[m.start:m.end] for m in matches]
