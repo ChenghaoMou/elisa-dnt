@@ -50,11 +50,11 @@ def load_rules(emoji_path: str = 'elisa_dnt/emojis.ini',
         for rule in map(lambda x: x.strip('\n'), i.readlines()):
             name, value = rule.split('=', 1)
             if scheme == "del":
-                rules[name] = re.compile(u"([ \u202b]*{}[ \u202b]*)".format(value))
+                rules[name] = re.compile(u"([ \u200a-\u202f]*{}[ \u200a-\u202f]*)".format(value))
             else:
                 rules[name] = re.compile(r"({})".format(value))
         if scheme == "del":
-            rules['emoji'] = re.compile(u'([ \u202b]*(?:' + emojis + ')[ \u202b]*)', re.UNICODE)
+            rules['emoji'] = re.compile(u'([ \u200a-\u202f]*(?:' + emojis + ')[ \u200a-\u202f]*)', re.UNICODE)
         else:
             rules['emoji'] = re.compile(r'(' + emojis + ')', re.UNICODE)
 
