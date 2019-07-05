@@ -85,7 +85,7 @@ def mark(string: str, matches: list, scheme: str = "sub") -> tuple:
         for value, key in sorted(modification, key=lambda x: (len(x[0]), x[0]), reverse=True):
             string = string.replace(value, f"{key}")
 
-        return string, modification, None
+        return string, [m[0] for m in modification], None
 
     elif scheme == "del":
         lead = False
