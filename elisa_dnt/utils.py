@@ -50,7 +50,7 @@ def load_rules(rule_path: str = 'elisa_dnt/rules.ini', scheme: str = 'del') -> d
     return rules
 
 
-def find(string: str, rules: dict) -> list:
+def find(string: str, rules: dict, scheme='del') -> list:
     # matches = itertools.chain(*[(key, exp.finditer(string)) ])
     matches = [(key, match) for key, exp in rules.items() for match in exp.finditer(string)]
     matches = [match for match in sorted(matches, key=lambda m: (m[-1].start(0), -(m[-1].end(0))))]
@@ -59,7 +59,7 @@ def find(string: str, rules: dict) -> list:
     for i, (name, match) in enumerate(matches):
         if i > 0 and merged_matches[-1].start <= match.start(0) < match.end(0) <= merged_matches[-1].end:
             continue
-        elif i > 0 and merged_matches[-1].start <= match.start(0) <= merged_matches[-1].end + 1:
+        elif i > 0 and ((match.start(0) <= merged_matches[-1].end) or (scheme == 'del' and match.start(0) <= merged_matches[-1].end + 1)):
             merged_matches[-1] = Match(merged_matches[-1].start,
                                        max(match.end(0), merged_matches[-1].end),
                                        'comb')
@@ -183,7 +183,7 @@ def split(corpus_path, corpus_output, ini_output, scheme: str, ref: str, rules: 
             for src in source.readlines():
                 total_sents += 1
                 src = src.strip('\n')
-                src_matches = find(src, rules)
+                src_matches = find(src, rules, scheme)
                 src_after, src_mod, src_lead = mark(src, src_matches, scheme=scheme)
                 if scheme == "del":
                     for seg in src_after:
@@ -217,8 +217,8 @@ def split(corpus_path, corpus_output, ini_output, scheme: str, ref: str, rules: 
                 src_line = src_line.strip('\n')
                 tgt_line = tgt_line.strip('\n')
 
-                src_matches = find(src_line, rules)
-                tgt_matches = find(tgt_line, rules)
+                src_matches = find(src_line, rules, scheme)
+                tgt_matches = find(tgt_line, rules, scheme)
                 src_matches_text = [src_line[m.start(0):m.end(0)] for m in src_matches]
                 tgt_matches_text = [tgt_line[m.start(0):m.end(0)] for m in tgt_matches]
                 x_matches = list(set(src_matches_text).intersection(set(tgt_matches_text)))
@@ -306,13 +306,13 @@ def restore(dnt_path, ini_path, output, scheme="del"):
 if __name__ == "__main__":
 
     txt = """RT @jokateM: Utu humfanya mtu awe kipenzi cha watu,utu humfanya mtu awe kimbilio la watu,aliyekosa utu hana mvuto kwa watu. 🙏🏽❤ She writes [ar]: ملخص تغطية وكالة الانباء الرسمية لمظاهرات امس: مواطنين اعتدوا على الشرطة فاضطروها لاستخدام الغاز المسيل للدموع http://suna-sd.net/suna/showNews/-fJi7HGycvs26Azq7aG4mmjptp-NQZ_WndSuVb1-KMY/1 #الخرا ds.CRIME BE PART OF VODACOM SUCCESS: https://t.co/Wzo1EckNhe via @YouTube CEO wa @MeTL_Group, @moodewji akiwa katika majadiliano kwenye mkutano wa @africaceoforum unaofanyika Geneva, Switze... https://t.co/uBAXDYfmlQ
-@earadiofm: #MICHEZO Msanii na Mbunge wa Mikumi @ProfessorJayTz akiwa na Seleman Matola katika uwanja wa Taifa kushuhudia mechi kati ya...RT @earadiofm: #MICHEZO Msanii na Mbunge wa Mikumi @ProfessorJayTz akiwa na Seleman Matola katika uwanja wa Taifa kushuhudia mechi kati ya...@Youtube She writes [ar]: ملخص تغطية وكالة الانباء الرسمية لمظاهرات امس: مواطنين اعتدوا على الشرطة فاضطروها لاستخدام الغاز المسيل للدموع http://suna-sd.net/suna/showNews/-fJi7HGycvs26Azq7aG4mmjptp-NQZ_WndSuVb1-KMY/1 ‫#الخراء‬"""
+@earadiofm: #MICHEZO Msanii na Mbunge wa Mikumi @ProfessorJayTz akiwa na Seleman Matola katika uwanja wa Taifa kushuhudia mechi kati ya...RT @earadiofm: #MICHEZO Msanii na Mbunge wa Mikumi @ProfessorJayTz akiwa na Seleman Matola katika uwanja wa Taifa kushuhudia mechi kati ya...@Youtube She writes [ar]: ملخص تغطية وكالة الانباء الرسمية لمظاهرات امس: مواطنين اعتدوا على الشرطة فاضطروها لاستخدام الغاز المسيل للدموع http://suna-sd.net/suna/showNews/-fJi7HGycvs26Azq7aG4mmjptp-NQZ_WndSuVb1-KMY/1 https://t.co/6fURhmguTF‬"""
 
-    rules = load_rules('rules.ini', 'del')
+    rules = load_rules('rules.ini', 'sub')
     options = generate_options('rules.ini')
-    matches = find(txt, rules)
+    matches = find(txt, rules, 'sub')
     spans = [txt[m.start:m.end] for m in matches]
 
     print(spans)
-    print(mark(txt, find(txt, rules), 'del'))
+    print(mark(txt, find(txt, rules, 'sub'), 'sub'))
     print(visual(txt, matches, options, rules))
