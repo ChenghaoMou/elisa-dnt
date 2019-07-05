@@ -82,7 +82,7 @@ def mark(string: str, matches: list, scheme: str = "sub") -> tuple:
             text = string[start:end]
             modification.append(text)
 
-        for key, value in zip(MARKERS, modification):
+        for key, value in zip(MARKERS, sorted(modification, key=lambda x: (len(x), x), reverse=True)):
             string = string.replace(value, f"{key}")
 
         return string, modification, None
