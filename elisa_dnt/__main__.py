@@ -19,7 +19,9 @@ if __name__ == "__main__":
                         help="[Post]File path to the dnt conf file")
     parser.add_argument('--output', type=str,
                         help="[Post]File path to the output file")
-
+    parser.add_argument('--ordered', action='store_true', dest='ordered', default=False,
+                        help='Sub parameter, use markers orderly as how LI tokens appear; '
+                             'suggest True for translation, False for bpe')
     parser.add_argument('--src', type=str,
                         help='[Pre]File path to the source file')
     parser.add_argument('--src_output', type=str,
@@ -42,7 +44,7 @@ if __name__ == "__main__":
     options = generate_options()
 
     if args.step == "post":
-        restore(args.dnt_src, args.dnt_ini, args.output, args.scheme)
+        restore(args.dnt_src, args.dnt_ini, args.output, args.scheme, ordered=args.ordered)
         exit(0)
 
     if args.visual:
@@ -65,7 +67,7 @@ if __name__ == "__main__":
     path = args.src
 
     split(args.src, args.src_output, args.ini_output, scheme=args.scheme,
-          ref=args.tgt if args.scheme == "sub" and args.pb_cross else "", rules=rules)
+          ref=args.tgt if args.scheme == "sub" and args.pb_cross else "", rules=rules, ordered=args.ordered)
 
     if args.visual:
         if args.tgt == "":

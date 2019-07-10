@@ -71,7 +71,7 @@ def find(string: str, rules: dict, scheme='del') -> list:
     return merged_matches
 
 
-def mark(string: str, matches: list, scheme: str = "sub") -> tuple:
+def mark(string: str, matches: list, scheme: str = "sub", ordered: bool = True) -> tuple:
     global MARKERS
     if scheme == "sub":
 
@@ -83,7 +83,8 @@ def mark(string: str, matches: list, scheme: str = "sub") -> tuple:
             modification.append((text, key))
 
         for value, key in sorted(modification, key=lambda x: (len(x[0]), x[0]), reverse=True):
-            string = string.replace(value, f"{key}")
+            if ordered: string = string.replace(value, f"{key}")
+            else: string = string.replace(value, MARKERS[0])
 
         return string, [m[0] for m in modification], None
 
@@ -175,7 +176,7 @@ def visual(string: str, matches: list, options: dict, rules: dict) -> str:
     return res
 
 
-def split(corpus_path, corpus_output, ini_output, scheme: str, ref: str, rules: dict):
+def split(corpus_path, corpus_output, ini_output, scheme: str, ref: str, rules: dict, ordered: bool=True):
     with open(corpus_path) as source, open(corpus_output, "w") as o_source, open(ini_output, "w") as o_source_ini:
 
         if ref == "":
@@ -184,7 +185,7 @@ def split(corpus_path, corpus_output, ini_output, scheme: str, ref: str, rules: 
                 total_sents += 1
                 src = src.strip('\n')
                 src_matches = find(src, rules, scheme)
-                src_after, src_mod, src_lead = mark(src, src_matches, scheme=scheme)
+                src_after, src_mod, src_lead = mark(src, src_matches, scheme=scheme, ordered=ordered)
                 if scheme == "del":
                     for seg in src_after:
                         o_source.write(seg + "\n")
@@ -224,7 +225,7 @@ def split(corpus_path, corpus_output, ini_output, scheme: str, ref: str, rules: 
                 x_matches = list(set(src_matches_text).intersection(set(tgt_matches_text)))
                 x_src_matches = [m for m in src_matches if src_line[m.start(0):m.end(0)] in x_matches]
 
-                src_after, src_mod, src_lead = mark(src_line, x_src_matches, scheme=scheme)
+                src_after, src_mod, src_lead = mark(src_line, x_src_matches, scheme=scheme, ordered=ordered)
 
                 o_source.write(src_after + "\n")
 
@@ -234,7 +235,7 @@ def split(corpus_path, corpus_output, ini_output, scheme: str, ref: str, rules: 
                     o_source_ini.write("IGNORE\n")
 
 
-def restore(dnt_path, ini_path, output, scheme="del"):
+def restore(dnt_path, ini_path, output, scheme="del", ordered:bool=True):
     global MARKERS
 
     with open(output, "w") as o, open(dnt_path) as i_source, open(ini_path) as i_source_ini:
@@ -294,12 +295,16 @@ def restore(dnt_path, ini_path, output, scheme="del"):
                 new_translation = translation
                 for char in translation:
                     if char in MARKERS:
-                        if ord(char) - 0x4DC0 >= len(segments):
+                        if ord(char) - 0x4DC0 >= len(segments) or segments == []:
                             warnings.warn("Wired source sentence: {}".format(translation), Warning)
                             warnings.warn(" ".join(segments), Warning)
                             continue
-                        new_translation = new_translation.replace(char,
-                                                                  segments[min(ord(char) - 0x4DC0, len(segments) - 1)])
+                        if ordered:
+                            new_translation = new_translation.replace(char, segments[min(ord(char) - 0x4DC0, len(segments) - 1)])
+                        else:
+                            new_translation = new_translation.replace(char, segments[0], 1)
+                            segments.pop(0)
+
                 o.write(new_translation + '\n')
 
 
@@ -314,5 +319,5 @@ if __name__ == "__main__":
     spans = [txt[m.start:m.end] for m in matches]
 
     print(spans)
-    print(mark(txt, find(txt, rules, 'sub'), 'sub'))
+    print(mark(txt, find(txt, rules, 'sub'), 'sub', ordered=False))
     print(visual(txt, matches, options, rules))
